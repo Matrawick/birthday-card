@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hap-pea Birthday</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sniglet:wght@400;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #fbf5e9;
+    --cream-2: #f4ead6;
+    --pea: #6cb52d;
+    --pea-dark: #2f5d1a;
+    --pink: #f4a7b9;
+    --pink-dark: #e07a95;
+    --blue: #8fb8e0;
+    --yellow: #f6d35b;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  body {
+    font-family: "Sniglet", "Comic Sans MS", system-ui, sans-serif;
+    color: var(--pea-dark);
+    background-color: var(--cream);
+    /* soft polka dots, like the dress */
+    background-image:
+      radial-gradient(var(--pink) 2.5px, transparent 3px),
+      radial-gradient(#cfe6b5 2.5px, transparent 3px);
+    background-size: 44px 44px;
+    background-position: 0 0, 22px 22px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .stage {
+    position: relative;
+    width: min(92vw, calc((100vh - 140px) * 1312 / 1199));
+    aspect-ratio: 1312 / 1199;
+    perspective: 1600px;
+  }
+
+  .card {
+    position: absolute;
+    inset: 0;
+    border-radius: 18px;
+    overflow: hidden;
+    background: #fff;
+    border: 10px solid #fff;
+    box-shadow:
+      0 0 0 3px var(--pink),
+      0 18px 40px rgba(80, 60, 30, 0.25),
+      0 4px 10px rgba(80, 60, 30, 0.15);
+    transform-origin: center center;
+    backface-visibility: hidden;
+    visibility: hidden;
+    will-change: transform, opacity;
+  }
+  .card.active { visibility: visible; }
+
+  .card img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+    pointer-events: none;
+  }
+
+  .nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    border: 3px solid var(--pea-dark);
+    background: radial-gradient(circle at 35% 30%, #a6e06a, var(--pea) 60%, #4f8f1f);
+    color: #fff;
+    font-size: 28px;
+    font-weight: 800;
+    cursor: pointer;
+    z-index: 20;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 6px 14px rgba(47, 93, 26, 0.35);
+    transition: transform 0.2s cubic-bezier(.3,1.6,.5,1), opacity 0.3s;
+  }
+  .nav:hover { transform: translateY(-50%) scale(1.12) rotate(-8deg); }
+  .nav:active { transform: translateY(-50%) scale(0.92); }
+  .nav:disabled { opacity: 0; pointer-events: none; }
+  .nav.prev { left: -29px; }
+  .nav.next { right: -29px; }
+  .nav.next:not(:disabled) { animation: nudge 2.4s ease-in-out infinite; }
+
+  @keyframes nudge {
+    0%, 80%, 100% { transform: translateY(-50%); }
+    88% { transform: translateY(-50%) translateX(6px); }
+    94% { transform: translateY(-50%) translateX(-2px); }
+  }
+
+  .dots {
+    display: flex;
+    gap: 14px;
+  }
+  .dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2.5px solid var(--pea-dark);
+    background: var(--cream);
+    cursor: pointer;
+    padding: 0;
+    transition: transform 0.35s cubic-bezier(.3,1.8,.5,1), background 0.3s;
+  }
+  .dot.active {
+    background: radial-gradient(circle at 35% 30%, #a6e06a, var(--pea) 60%);
+    transform: scale(1.35);
+  }
+
+  .hint {
+    font-size: 15px;
+    opacity: 0.75;
+    letter-spacing: 0.02em;
+  }
+  .hint kbd {
+    display: inline-block;
+    font-family: inherit;
+    border: 2px solid var(--pea-dark);
+    border-bottom-width: 3px;
+    border-radius: 6px;
+    padding: 0 6px;
+    margin: 0 2px;
+    background: #fff;
+  }
+
+  /* confetti layer */
+  .fx {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 50;
+    overflow: hidden;
+  }
+  .bit {
+    position: absolute;
+    top: 0;
+    left: 0;
+    will-change: transform, opacity;
+  }
+  .bit.pea {
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #b9ec82, var(--pea) 55%, #4f8f1f);
+    border: 1.5px solid var(--pea-dark);
+  }
+  .bit.dotty {
+    border-radius: 50%;
+  }
+  .bit.flag {
+    width: 0; height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+  }
+  .bit.heart {
+    font-size: 22px;
+    line-height: 1;
+  }
+
+  @media (max-width: 600px) {
+    .nav { width: 46px; height: 46px; font-size: 22px; }
+    .nav.prev { left: -12px; }
+    .nav.next { right: -12px; }
+    .hint .keys { display: none; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="stage" id="stage">
+    <div class="card"><img src="1.png" alt="A pea in a pink polka-dot dress twirling in the mirror, playing cards with friends, and frosting a cake"></div>
+    <div class="card"><img src="2.png" alt="The pea in a pink dress serving a birthday cake to friends in party hats"></div>
+    <div class="card"><img src="3.png" alt="The pea reading in a rocking chair beside a pod full of peas: Hap-pea Birthday"></div>
+
+    <button class="nav prev" id="prev" aria-label="Previous">&#8249;</button>
+    <button class="nav next" id="next" aria-label="Next">&#8250;</button>
+  </div>
+
+  <div class="dots" id="dots"></div>
+  <div class="hint"><span class="keys">Use <kbd>&larr;</kbd> <kbd>&rarr;</kbd> or </span>tap the peas to turn the page</div>
+
+  <div class="fx" id="fx"></div>
+
+<script>
+(() => {
+  const cards = [...document.querySelectorAll('.card')];
+  const prevBtn = document.getElementById('prev');
+  const nextBtn = document.getElementById('next');
+  const dotsEl = document.getElementById('dots');
+  const fx = document.getElementById('fx');
+  const stage = document.getElementById('stage');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let current = 0;
+  let busy = false;
+  let lastEffect = null;
+
+  const dots = cards.map((_, i) => {
+    const b = document.createElement('button');
+    b.className = 'dot';
+    b.setAttribute('aria-label', `Page ${i + 1}`);
+    b.addEventListener('click', () => go(i));
+    dotsEl.appendChild(b);
+    return b;
+  });
+
+  // ---------- Transitions ----------
+  // Each effect gets dir = 1 (forward) or -1 (back) and returns
+  // [outgoing keyframes, incoming keyframes, options].
+  const bounce = 'cubic-bezier(.34,1.56,.64,1)';
+  const effects = {
+    // turn the page like a real card
+    flip: d => [
+      [{ transform: 'rotateY(0deg)' }, { transform: `rotateY(${-90 * d}deg)` }],
+      [{ transform: `rotateY(${90 * d}deg)` }, { transform: 'rotateY(0deg)' }],
+      { outDur: 420, inDur: 520, outEase: 'ease-in', inEase: 'cubic-bezier(.2,1.4,.4,1)', sequential: true }
+    ],
+    // roll away like a pea
+    roll: d => [
+      [{ transform: 'translateX(0) rotate(0deg)', opacity: 1 },
+       { transform: `translateX(${-130 * d}%) rotate(${-200 * d}deg) scale(.4)`, opacity: 0 }],
+      [{ transform: `translateX(${130 * d}%) rotate(${200 * d}deg) scale(.4)`, opacity: 0 },
+       { transform: 'translateX(0) rotate(0deg) scale(1)', opacity: 1 }],
+      { outDur: 700, inDur: 900, outEase: 'ease-in', inEase: bounce }
+    ],
+    // shrink to a pea, pop back out
+    pop: () => [
+      [{ transform: 'scale(1) rotate(0)', opacity: 1, borderRadius: '18px' },
+       { transform: 'scale(.05) rotate(-25deg)', opacity: 0, borderRadius: '50%' }],
+      [{ transform: 'scale(.05) rotate(25deg)', opacity: 0, borderRadius: '50%' },
+       { transform: 'scale(1.12) rotate(-3deg)', opacity: 1, borderRadius: '30px', offset: .7 },
+       { transform: 'scale(1) rotate(0)', opacity: 1, borderRadius: '18px' }],
+      { outDur: 450, inDur: 650, outEase: 'ease-in', inEase: 'ease-out', sequential: true }
+    ],
+    // drop in from above and wobble like jelly
+    drop: d => [
+      [{ transform: 'translateY(0) rotate(0)', opacity: 1 },
+       { transform: `translateY(120%) rotate(${12 * d}deg)`, opacity: 0 }],
+      [{ transform: 'translateY(-120%) rotate(-6deg)', offset: 0 },
+       { transform: 'translateY(0) scale(1.08, .9)', offset: .55 },
+       { transform: 'translateY(-6%) scale(.96, 1.05)', offset: .72 },
+       { transform: 'translateY(0) scale(1.02, .98)', offset: .88 },
+       { transform: 'translateY(0) scale(1)', offset: 1 }],
+      { outDur: 600, inDur: 1000, outEase: 'ease-in', inEase: 'ease-out' }
+    ],
+    // spin around like a party twirl
+    twirl: d => [
+      [{ transform: 'rotateZ(0) scale(1)', opacity: 1 },
+       { transform: `rotateZ(${360 * d}deg) scale(0)`, opacity: 0 }],
+      [{ transform: `rotateZ(${-360 * d}deg) scale(0)`, opacity: 0 },
+       { transform: 'rotateZ(0) scale(1)', opacity: 1 }],
+      { outDur: 550, inDur: 800, outEase: 'ease-in', inEase: bounce, sequential: true }
+    ],
+  };
+
+  function pickEffect() {
+    const names = Object.keys(effects).filter(n => n !== lastEffect);
+    const name = names[Math.floor(Math.random() * names.length)];
+    lastEffect = name;
+    return effects[name];
+  }
+
+  async function go(target) {
+    if (busy || target === current || target < 0 || target >= cards.length) return;
+    busy = true;
+
+    const dir = target > current ? 1 : -1;
+    const outCard = cards[current];
+    const inCard = cards[target];
+
+    if (reduceMotion) {
+      inCard.classList.add('active');
+      await Promise.all([
+        outCard.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300 }).finished,
+        inCard.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 300 }).finished,
+      ]);
+    } else {
+      const [outKf, inKf, o] = pickEffect()(dir);
+      burst(target === cards.length - 1 ? 70 : 28);
+
+      outCard.style.zIndex = 1;
+      inCard.style.zIndex = 2;
+
+      const outAnim = outCard.animate(outKf, { duration: o.outDur, easing: o.outEase, fill: 'forwards' });
+      if (o.sequential) await outAnim.finished;
+
+      inCard.classList.add('active');
+      const inAnim = inCard.animate(inKf, { duration: o.inDur, easing: o.inEase, fill: 'backwards' });
+      await Promise.all([outAnim.finished, inAnim.finished]);
+      outAnim.cancel();
+      outCard.style.zIndex = inCard.style.zIndex = '';
+    }
+
+    outCard.classList.remove('active');
+    current = target;
+    update();
+    busy = false;
+
+    if (current === cards.length - 1 && !reduceMotion) celebrate();
+  }
+
+  function update() {
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === cards.length - 1;
+    dots.forEach((d, i) => d.classList.toggle('active', i === current));
+  }
+
+  // ---------- Confetti ----------
+  const colors = ['#f4a7b9', '#e07a95', '#8fb8e0', '#f6d35b', '#b49ddb', '#f29a5b'];
+  const rand = (a, b) => a + Math.random() * (b - a);
+
+  function makeBit() {
+    const el = document.createElement('div');
+    const kind = Math.random();
+    if (kind < 0.4) {
+      el.className = 'bit pea';
+      const s = rand(10, 20);
+      el.style.width = el.style.height = s + 'px';
+    } else if (kind < 0.7) {
+      el.className = 'bit dotty';
+      const s = rand(7, 12);
+      el.style.width = el.style.height = s + 'px';
+      el.style.background = colors[Math.floor(Math.random() * colors.length)];
+    } else if (kind < 0.9) {
+      el.className = 'bit flag';
+      el.style.borderTop = `14px solid ${colors[Math.floor(Math.random() * colors.length)]}`;
+    } else {
+      el.className = 'bit heart';
+      el.textContent = '♥';
+      el.style.color = Math.random() < .5 ? '#e07a95' : '#f4a7b9';
+    }
+    fx.appendChild(el);
+    return el;
+  }
+
+  // pop of confetti from the middle of the card
+  function burst(n) {
+    const r = stage.getBoundingClientRect();
+    const cx = r.left + r.width / 2;
+    const cy = r.top + r.height / 2;
+    for (let i = 0; i < n; i++) {
+      const el = makeBit();
+      const angle = rand(0, Math.PI * 2);
+      const dist = rand(120, Math.max(r.width, r.height) * 0.75);
+      const dx = Math.cos(angle) * dist;
+      const dy = Math.sin(angle) * dist;
+      const spin = rand(-540, 540);
+      el.animate([
+        { transform: `translate(${cx}px, ${cy}px) scale(.2) rotate(0deg)`, opacity: 1 },
+        { transform: `translate(${cx + dx}px, ${cy + dy}px) scale(1) rotate(${spin / 2}deg)`, opacity: 1, offset: .6 },
+        { transform: `translate(${cx + dx * 1.1}px, ${cy + dy + 140}px) scale(.8) rotate(${spin}deg)`, opacity: 0 }
+      ], { duration: rand(1000, 1700), easing: 'cubic-bezier(.15,.7,.4,1)' })
+        .finished.then(() => el.remove());
+    }
+  }
+
+  // confetti rain for the big finale
+  function celebrate() {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    let count = 0;
+    const timer = setInterval(() => {
+      for (let i = 0; i < 6; i++) {
+        const el = makeBit();
+        const x = rand(0, w);
+        const drift = rand(-120, 120);
+        el.animate([
+          { transform: `translate(${x}px, -30px) rotate(0deg)` },
+          { transform: `translate(${x + drift}px, ${h + 40}px) rotate(${rand(-720, 720)}deg)` }
+        ], { duration: rand(2600, 4200), easing: 'linear' })
+          .finished.then(() => el.remove());
+      }
+      if (++count > 30) clearInterval(timer);
+    }, 90);
+  }
+
+  // ---------- Input ----------
+  prevBtn.addEventListener('click', () => go(current - 1));
+  nextBtn.addEventListener('click', () => go(current + 1));
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); go(current + 1); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); go(current - 1); }
+  });
+
+  // swipe on phones / trackpads
+  let touchX = null;
+  stage.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; }, { passive: true });
+  stage.addEventListener('touchend', e => {
+    if (touchX === null) return;
+    const dx = e.changedTouches[0].clientX - touchX;
+    if (Math.abs(dx) > 40) go(current + (dx < 0 ? 1 : -1));
+    touchX = null;
+  });
+
+  // ---------- Start ----------
+  cards[0].classList.add('active');
+  update();
+  if (!reduceMotion) {
+    cards[0].animate(
+      [{ transform: 'scale(.6) rotate(-6deg)', opacity: 0 }, { transform: 'scale(1) rotate(0)', opacity: 1 }],
+      { duration: 900, easing: bounce }
+    );
+    setTimeout(() => burst(36), 300);
+  }
+})();
+</script>
+</body>
+</html>
